@@ -61,7 +61,8 @@ class condGANTrainer(object):
 
         print("Load the style loss model")
         style_loss.eval()
-
+        
+        #loading the pretrained image encoder and settig to eval mode
         image_encoder = CNN_ENCODER(cfg.TEXT.EMBEDDING_DIM)
         img_encoder_path = cfg.TRAIN.NET_E.replace('text_encoder', 'image_encoder')
         state_dict = \
@@ -69,9 +70,10 @@ class condGANTrainer(object):
         image_encoder.load_state_dict(state_dict)
         for p in image_encoder.parameters():
             p.requires_grad = False
-        print('Load image encoder from:', img_encoder_path)
+        print('--------Load image encoder from:', img_encoder_path)
         image_encoder.eval()
-
+        
+        #loading the pretrained text encoder LSTM and settig to eval mode
         text_encoder = \
             RNN_ENCODER(self.n_words, nhidden=cfg.TEXT.EMBEDDING_DIM)
         state_dict = \
@@ -80,7 +82,7 @@ class condGANTrainer(object):
         text_encoder.load_state_dict(state_dict)
         for p in text_encoder.parameters():
             p.requires_grad = False
-        print('Load text encoder from:', cfg.TRAIN.NET_E)
+        print('--------Load text encoder from:', cfg.TRAIN.NET_E)
         text_encoder.eval()
 
         netsD = []
@@ -106,14 +108,14 @@ class condGANTrainer(object):
 
         for i in range(len(netsD)):
             netsD[i].apply(weights_init)
-        print('# of netsD', len(netsD))
+        print('----------# of netsD', len(netsD))
         #
         epoch = 0
         if cfg.TRAIN.NET_G != '':
             state_dict = \
                 torch.load(cfg.TRAIN.NET_G, map_location=lambda storage, loc: storage)
             netG.load_state_dict(state_dict)
-            print('Load G from: ', cfg.TRAIN.NET_G)
+            print('--------Load G from: ', cfg.TRAIN.NET_G)
             istart = cfg.TRAIN.NET_G.rfind('_') + 1
             iend = cfg.TRAIN.NET_G.rfind('.')
             epoch = cfg.TRAIN.NET_G[istart:iend]
@@ -135,10 +137,11 @@ class condGANTrainer(object):
             style_loss = style_loss.cuda()
             for i in range(len(netsD)):
                 netsD[i].cuda()
-
+        print('--------end of build model function reached')
         return [text_encoder, image_encoder, netG, netsD, epoch, style_loss]
 
     def define_optimizers(self, netG, netsD):
+        print('--------end of define_optimizers function called')
         optimizersD = []
         num_Ds = len(netsD)
         for i in range(num_Ds):
@@ -166,6 +169,7 @@ class condGANTrainer(object):
         return real_labels, fake_labels, match_labels
 
     def save_model(self, netG, avg_param_G, netsD, epoch):
+        print('---------save model function is called')
         backup_para = copy_G_params(netG)
         load_params(netG, avg_param_G)
         torch.save(netG.state_dict(),
@@ -224,6 +228,7 @@ class condGANTrainer(object):
             im.save(fullpath)
 
     def train(self):
+        print('--------in the trainer function')
         text_encoder, image_encoder, netG, netsD, start_epoch, style_loss = self.build_models()
         avg_param_G = copy_G_params(netG)
         optimizerG, optimizersD = self.define_optimizers(netG, netsD)
