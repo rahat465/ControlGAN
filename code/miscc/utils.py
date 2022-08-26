@@ -126,7 +126,8 @@ def build_super_images(real_imgs, captions, ixtoword,
             if (vis_size // att_sze) > 1:
                 one_map = \
                     skimage.transform.pyramid_expand(one_map, sigma=20,
-                                                     upscale=vis_size // att_sze)
+                                                     upscale=vis_size // att_sze,
+                                                    multichannel=True)
             row_beforeNorm.append(one_map)
             minV = one_map.min()
             maxV = one_map.max()
@@ -141,7 +142,7 @@ def build_super_images(real_imgs, captions, ixtoword,
                 one_map *= 255
                 #
                 PIL_im = Image.fromarray(np.uint8(img))
-                PIL_att = Image.fromarray(np.uint8(one_map))
+                PIL_att = Image.fromarray(np.uint8(one_map)[:,:,0:3])
                 merged = \
                     Image.new('RGBA', (vis_size, vis_size), (0, 0, 0, 0))
                 mask = Image.new('L', (vis_size, vis_size), (210))
@@ -151,7 +152,7 @@ def build_super_images(real_imgs, captions, ixtoword,
             else:
                 one_map = post_pad
                 merged = post_pad
-            row.append(one_map)
+            row.append(one_map[:,:,0:3])
             row.append(middle_pad)
             #
             row_merge.append(merged)
