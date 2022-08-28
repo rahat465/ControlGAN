@@ -352,6 +352,8 @@ class NEXT_STAGE_G(nn.Module):
 
     def define_module(self):
         ngf = self.gf_dim
+        print("-------in the define module function--ngf=", self.ngf)
+         print("-------in the define module function--ef_dim=", self.ef_dim)
         self.att = SPATIAL_NET(ngf, self.ef_dim)
         self.channel_att = CHANNEL_NET(ngf, self.ef_dim)
         self.residual = self._make_layer(ResBlock, ngf * 3)
