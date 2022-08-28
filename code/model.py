@@ -367,7 +367,9 @@ class NEXT_STAGE_G(nn.Module):
             att: batch x sourceL x queryL
         """
         self.att.applyMask(mask)
+        print("--------what is in h_code", h_code)
         c_code, att = self.att(h_code, word_embs)
+        print("--------------c_ode in define module of 2nd stage---",c_code)
         c_code_channel, att_channel = self.channel_att(c_code, word_embs, h_code.size(2), h_code.size(3))
         c_code = c_code.view(word_embs.size(0), -1, h_code.size(2), h_code.size(3))
 
