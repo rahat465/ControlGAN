@@ -346,6 +346,7 @@ class NEXT_STAGE_G(nn.Module):
 
     def _make_layer(self, block, channel_num):
         layers = []
+        print("------value in GAN.R_NUM=", cfg.GAN.R_NUM)
         for i in range(cfg.GAN.R_NUM):
             layers.append(block(channel_num))
         return nn.Sequential(*layers)
